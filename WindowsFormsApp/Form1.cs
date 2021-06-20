@@ -89,12 +89,10 @@ namespace WindowsFormsApp
                 test.words = sortedDict.ToDictionary<KeyValuePair<string, int>, string, int>(pair => pair.Key, pair => pair.Value);
 
                 string json = JsonConvert.SerializeObject(test, Formatting.Indented);
-
-                var d = JsonConvert.DeserializeObject(json);
-
+             
                 File.WriteAllText("results.json", json);
 
-               richTextBox1.Text = json;
+                richTextBox1.Text = json;
 
                 MessageBox.Show("Файл с результатами успешно сохранён {results.json}", "Оповещение", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
