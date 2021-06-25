@@ -34,7 +34,6 @@ namespace WindowsFormsApp
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.Read_from_file = new System.Windows.Forms.Button();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // Choose_File
@@ -78,21 +77,11 @@ namespace WindowsFormsApp
             this.Read_from_file.UseVisualStyleBackColor = true;
             this.Read_from_file.Click += new System.EventHandler(this.Read_from_file_Click);
             // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.richTextBox1.Location = new System.Drawing.Point(381, 9);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(465, 312);
-            this.richTextBox1.TabIndex = 5;
-            this.richTextBox1.Text = "";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(858, 333);
-            this.Controls.Add(this.richTextBox1);
+            this.ClientSize = new System.Drawing.Size(394, 178);
             this.Controls.Add(this.Read_from_file);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
@@ -115,7 +104,6 @@ namespace WindowsFormsApp
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button Read_from_file;
-        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 

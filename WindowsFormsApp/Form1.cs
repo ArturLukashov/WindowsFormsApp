@@ -93,15 +93,14 @@ namespace WindowsFormsApp
                     }
                     test.allfields["wordsCount"] += line.Length;
                 }
-                test.allfields.Add("linesCount", every_line.Length);
-               // test.linesCount = every_line.Length;
+                test.allfields.Add("linesCount", every_line.Length);       
                 test.Longest_word();
                 test.Count_words_with_hyphen();
                 test.allfields.Add("filesize",Convert.ToInt32(new System.IO.FileInfo(openFile.FileName).Length));
                 test.words = Sort(test.words);
                 test.allfields = Sort(test.allfields);
-                var sortedDict = from entry in test.letter_how_much orderby entry.Value descending select entry;
-                test.letter_how_much = sortedDict.ToDictionary<KeyValuePair<char, int>, char, int>(pair => pair.Key, pair => pair.Value);
+                var sortedDict = from entry in test.letters orderby entry.Value descending select entry;
+                test.letters = sortedDict.ToDictionary<KeyValuePair<char, int>, char, int>(pair => pair.Key, pair => pair.Value);
                 json_text = JsonConvert.SerializeObject(test, Formatting.Indented);                
                 File.WriteAllText("serialized.json", json_text);
                 myThread.Abort();          
@@ -132,17 +131,16 @@ namespace WindowsFormsApp
         }
     }
     public class Test 
-    {    
-        //Имя файла
+    {          
         public string filename { get; set; }
-        public Dictionary<string, int> allfields { get; set; }      
-        public Dictionary<char, int> letter_how_much { get; set; }
-        public Dictionary<string, int> words { get; set; }
+        public Dictionary<string, int> allfields { get; set; }
         public string longestWord { get; set; }
-      
+        public Dictionary<char, int> letters { get; set; }
+        public Dictionary<string, int> words { get; set; }
+         
         public Test()
         {                      
-            letter_how_much = new Dictionary<char, int>();
+            letters = new Dictionary<char, int>();
             words = new Dictionary<string, int>();
             allfields = new Dictionary<string, int>
             {
@@ -160,13 +158,13 @@ namespace WindowsFormsApp
             int lettersCount = 0;
             if (char.IsLetter(letter) == true)
             {                              
-                if (letter_how_much.ContainsKey(char.ToLower(letter)) == false)
+                if (letters.ContainsKey(char.ToLower(letter)) == false)
                 {
-                    letter_how_much.Add(char.ToLower(letter), 1);
+                    letters.Add(char.ToLower(letter), 1);
                 }
                 else
                 {
-                    letter_how_much[char.ToLower(letter)] += 1;
+                    letters[char.ToLower(letter)] += 1;
                 }
                 lettersCount++;
             }
@@ -234,7 +232,7 @@ namespace WindowsFormsApp
             int wordsWithHyphen = 0; 
             foreach (var x in words)
             {               
-                if (x.Key.Contains('-') == true)
+                if (x.Key.Contains('-') && x.Key.Length>1 == true)
                 {
                     wordsWithHyphen++;
                 }
