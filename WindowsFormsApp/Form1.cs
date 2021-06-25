@@ -9,8 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json; 
-
+using Newtonsoft.Json;
+using System.Threading;
+using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using Microsoft.VisualC.StlClr;
 
 namespace WindowsFormsApp
 {
@@ -23,12 +26,18 @@ namespace WindowsFormsApp
             InitializeComponent();
         }
         public OpenFileDialog openFile = new OpenFileDialog();
+        public string json_text;
         private void Choose_File_Click(object sender, EventArgs e)
         {
             if (ChooseFile() != null)
             {
                 Read_from_file.Enabled = true; 
             }            
+        }
+        private Dictionary<string, int> Sort(Dictionary<string,int> pairs)
+        {
+            var sortedDict = from entry in pairs orderby entry.Value descending select entry;
+            return sortedDict.ToDictionary<KeyValuePair<string, int>, string, int>(pair => pair.Key, pair => pair.Value);
         }
 
         private string ChooseFile()
@@ -45,25 +54,34 @@ namespace WindowsFormsApp
             }                       
            
         }
-
-        private void Read_from_file_Click(object sender, EventArgs e)
+        public async void ForAnaliz()
         {
+            await Task.Run(() => Analiz());
+
+        }
+        public void Proccess_Message()
+        {
+            Анализ_файла analiz = new Анализ_файла();
+            analiz.ShowDialog();
+        }
+        public void Analiz()
+        {            
+            Thread myThread = new Thread(Proccess_Message); 
+            myThread.Start(); 
             try
             {
                 Test test = new Test();
                 test.filename = openFile.SafeFileName;
+                test.allfields.Add("wordsCount", 0);
                 char[] separators = new char[] { ' ', '\r', '\n' };
                 StreamReader stream = new StreamReader(openFile.FileName);
                 string[] every_line = stream.ReadToEnd().Split('\n');
-
                 for (int i = 0; i < every_line.Length; i++)
                 {
                     for (int j = 0; j < every_line[i].Length; j++)
                     {
                         test.Count_of_letters(every_line[i][j]);
-
                         test.Count_of_punctuation_marks(every_line[i][j]);
-
                         test.Count_of_digits(every_line[i][j]);
 
                     }
@@ -71,36 +89,36 @@ namespace WindowsFormsApp
                     for (int k = 0; k < line.Length; k++)
                     {
                         test.Count_of_numbers(line[k]);
-
                         test.Count_of_each_word(line[k]);
-
                     }
-                    test.wordsCount += line.Length;
+                    test.allfields["wordsCount"] += line.Length;
                 }
-                test.linesCount = every_line.Length;
-
+                test.allfields.Add("linesCount", every_line.Length);
+               // test.linesCount = every_line.Length;
                 test.Longest_word();
-
                 test.Count_words_with_hyphen();
-
-                test.filesize = Convert.ToInt32(new System.IO.FileInfo(openFile.FileName).Length);
-
-                var sortedDict = from entry in test.words orderby entry.Value ascending select entry;
-                test.words = sortedDict.ToDictionary<KeyValuePair<string, int>, string, int>(pair => pair.Key, pair => pair.Value);
-
-                string json = JsonConvert.SerializeObject(test, Formatting.Indented);
-             
-                File.WriteAllText("results.json", json);
-
-                richTextBox1.Text = json;
-
-                MessageBox.Show("Файл с результатами успешно сохранён {results.json}", "Оповещение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                test.allfields.Add("filesize",Convert.ToInt32(new System.IO.FileInfo(openFile.FileName).Length));
+                test.words = Sort(test.words);
+                test.allfields = Sort(test.allfields);
+                var sortedDict = from entry in test.letter_how_much orderby entry.Value descending select entry;
+                test.letter_how_much = sortedDict.ToDictionary<KeyValuePair<char, int>, char, int>(pair => pair.Key, pair => pair.Value);
+                json_text = JsonConvert.SerializeObject(test, Formatting.Indented);                
+                File.WriteAllText("serialized.json", json_text);
+                myThread.Abort();          
+                MessageBox.Show("Файл с результатами успешно сохранён {serialized.json}", "Оповещение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start("serialized.json");
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
+              
+        }
+
+        private void Read_from_file_Click(object sender, EventArgs e)
+        {
+            ForAnaliz();          
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -110,45 +128,55 @@ namespace WindowsFormsApp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+           
         }
     }
     public class Test 
-    {
+    {    
         //Имя файла
         public string filename { get; set; }
+        public Dictionary<string, int> allfields { get; set; }
         //Размер файла
-        public int filesize { get; set; }
+       // public int filesize { get; set; }
         //Количество букв всего
-        public int lettersCount { get; set; }
+      //  public int lettersCount { get; set; }
         //Количество каждой буквы
-        public SortedDictionary<char, int> letter_how_much { get; set; }
+        public Dictionary<char, int> letter_how_much { get; set; }
         //Количество знаков препинания
-        public int punctuation { get; set; }
+        //public int punctuation { get; set; }
         //Количество цифр
-        public int digitsCount { get; set; }
+        //public int digitsCount { get; set; }
         //Количество чисел
-        public int numbersCount { get; set; }
+        //public int numbersCount { get; set; }
         //Количество всех слов
-        public int wordsCount { get; set; }
+        //public int wordsCount { get; set; }
         //Количество каждого слова
         public Dictionary<string, int> words { get; set; }
         //Самое длинное слово
         public string longestWord { get; set; }
         //Количество строк
-        public int linesCount { get; set; }
+      //  public int linesCount { get; set; }
         //Количество слов с дефисом
-        public int wordsWithHyphen { get; set; }      
+    //    public int wordsWithHyphen { get; set; }      
 
         public Test()
         {                      
-            letter_how_much = new SortedDictionary<char, int>();
+            letter_how_much = new Dictionary<char, int>();
             words = new Dictionary<string, int>();
+            allfields = new Dictionary<string, int>
+            {
+                ["lettersCount"] = 0,
+                ["punctuation"] = 0,
+                ["digitsCount"] = 0,
+                ["numbersCount"] = 0,
+                ["wordsWithHyphen"] = 0
+            };
         }
 
         //количество букв всего; количества каждой буквы
         public void Count_of_letters(char letter)
-        {            
+        {
+            int lettersCount = 0;
             if (char.IsLetter(letter) == true)
             {                              
                 if (letter_how_much.ContainsKey(char.ToLower(letter)) == false)
@@ -161,30 +189,37 @@ namespace WindowsFormsApp
                 }
                 lettersCount++;
             }
+            allfields["lettersCount"]+=lettersCount;
         }
         //Количество знаков препинания
         public void Count_of_punctuation_marks(char symbol)
         {
+            int punctuation = 0;
             if (char.IsPunctuation(symbol) == true)
             {
                 punctuation++;
             }
+            allfields["punctuation"] += punctuation;
         }
         //Количество цифр
         public void Count_of_digits(char symbol)
         {
+            int digitsCount = 0;
             if (char.IsNumber(symbol) == true)
             {
                 digitsCount++;
             }
+            allfields["digitsCount"]+= digitsCount;
         }
         //Количество чисел
         public void Count_of_numbers(string word)
         {
+            int numbersCount = 0; 
             if (Regex.IsMatch(word, @"\d+"))
             {
                 numbersCount++;
             }
+            allfields["numbersCount"] += numbersCount;
         }
         //Количество каждого слова
         public void Count_of_each_word(string key)
@@ -215,6 +250,7 @@ namespace WindowsFormsApp
         //Количество слов с дефисом
         public void Count_words_with_hyphen()
         {
+            int wordsWithHyphen = 0; 
             foreach (var x in words)
             {               
                 if (x.Key.Contains('-') == true)
@@ -222,6 +258,7 @@ namespace WindowsFormsApp
                     wordsWithHyphen++;
                 }
             }
+            allfields["wordsWithHyphen"]+= wordsWithHyphen;
         }
         
     }
