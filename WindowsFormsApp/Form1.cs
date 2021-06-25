@@ -135,30 +135,11 @@ namespace WindowsFormsApp
     {    
         //Имя файла
         public string filename { get; set; }
-        public Dictionary<string, int> allfields { get; set; }
-        //Размер файла
-       // public int filesize { get; set; }
-        //Количество букв всего
-      //  public int lettersCount { get; set; }
-        //Количество каждой буквы
+        public Dictionary<string, int> allfields { get; set; }      
         public Dictionary<char, int> letter_how_much { get; set; }
-        //Количество знаков препинания
-        //public int punctuation { get; set; }
-        //Количество цифр
-        //public int digitsCount { get; set; }
-        //Количество чисел
-        //public int numbersCount { get; set; }
-        //Количество всех слов
-        //public int wordsCount { get; set; }
-        //Количество каждого слова
         public Dictionary<string, int> words { get; set; }
-        //Самое длинное слово
         public string longestWord { get; set; }
-        //Количество строк
-      //  public int linesCount { get; set; }
-        //Количество слов с дефисом
-    //    public int wordsWithHyphen { get; set; }      
-
+      
         public Test()
         {                      
             letter_how_much = new Dictionary<char, int>();
